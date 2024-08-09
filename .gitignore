@@ -1,0 +1,5 @@
+*.json
+tmp.*
+Icon*
+__pycache__/
+*.lock
