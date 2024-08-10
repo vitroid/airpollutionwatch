@@ -4,7 +4,9 @@ sys.path.insert(0, "..")  # for debug
 
 import io
 import datetime
-import requests
+
+# import requests
+import requests_cache
 import pandas as pd
 
 try:
@@ -85,7 +87,8 @@ def retrieve_raw(isotime):
         "operation": "non",
         # "_token": "XYZ468SEcJMjhXEW4CNgmcadv7D7w7JlpSzQBhzu"
     }
-    response = requests.post(
+    session = requests_cache.CachedSession("airpollution")
+    response = session.post(
         "https://taikikanshi.pref.shizuoka.jp/jiho",
         data=data,
     )

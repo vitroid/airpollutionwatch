@@ -4,11 +4,11 @@ sys.path.insert(0, "..")  # for debug
 
 import io
 import datetime
-import requests
+
+# import requests
+import requests_cache
 import pandas as pd
 
-from airpollution.yamanashi_aux.V501Station import STATIONS
-from airpollution.yamanashi_aux.V502Item import ITEMS
 
 try:
     from convert import (
@@ -77,28 +77,23 @@ converters = {
 }
 
 
-def prepare():
-    response = requests.get(
+def stations():
+    # dfs = pd.DataFrame.from_dict(STATIONS, orient="index")  # .transpose()
+    session = requests_cache.CachedSession("airpollution")
+    response = session.get(
         "https://taiki.pref.yamanashi.jp/data/V501Station.json",
     )
-
-    with open("yamanashi_aux/V501Station.json", "w") as f:
-        f.write(response.text)
-    response = requests.get(
-        "https://taiki.pref.yamanashi.jp/data/V502Item.json",
-    )
-
-    with open("yamanashi_aux/V502Item.json", "w") as f:
-        f.write(response.text)
-
-
-def stations():
-    dfs = pd.DataFrame.from_dict(STATIONS, orient="index")  # .transpose()
+    dfs = pd.read_json(io.StringIO(response.text), orient="index")  # .transpose()
     return dfs
 
 
 def items():
-    dfs = pd.DataFrame.from_dict(ITEMS, orient="index")  # .transpose()
+    # dfs = pd.DataFrame.from_dict(ITEMS, orient="index")  # .transpose()
+    session = requests_cache.CachedSession("airpollution")
+    response = session.get(
+        "https://taiki.pref.yamanashi.jp/data/V502Item.json",
+    )
+    dfs = pd.read_json(io.StringIO(response.text), orient="index")  # .transpose()
     return dfs
 
 
@@ -106,7 +101,8 @@ def retrieve_raw(isotime):
     dt = datetime.datetime.fromisoformat(isotime)
     date_time = dt.strftime("%Y%m%d%H")
 
-    response = requests.get(
+    session = requests_cache.CachedSession("airpollution")
+    response = session.get(
         f"https://taiki.pref.yamanashi.jp/data/{date_time[:6]}/{date_time}.json",
     )
     # # これがないと文字化けする

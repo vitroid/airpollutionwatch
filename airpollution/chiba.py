@@ -1,6 +1,12 @@
+import sys
+
+sys.path.insert(0, "..")  # for debug
+
 import io
 import datetime
-import requests
+
+# import requests
+import requests_cache
 import pandas as pd
 
 # try:
@@ -113,7 +119,8 @@ def retrieve_raw(isotime):
     dt = datetime.datetime.fromisoformat(isotime)
     date_time = dt.strftime("day=%Y年%m月%d日&hour=%H")
 
-    response = requests.get(
+    session = requests_cache.CachedSession("airpollution")
+    response = session.get(
         f"https://air.taiki.pref.chiba.lg.jp/hourreport/?{date_time}",
     )
     # これがないと文字化けする
