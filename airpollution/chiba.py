@@ -116,6 +116,7 @@ converters = {
 
 
 def retrieve_raw(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名は生のまま。"""
     dt = datetime.datetime.fromisoformat(isotime)
     date_time = dt.strftime("day=%Y年%m月%d日&hour=%H")
 
@@ -131,6 +132,7 @@ def retrieve_raw(isotime):
 
 
 def retrieve(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。"""
     df = retrieve_raw(isotime)
     # with open("tmp.pickle", "wb") as f:
     #     pickle.dump(df, f)

@@ -51,7 +51,11 @@ except:
 
 
 # ウェブ上の表記と、国環研の表記との対応
-aliases = {}
+aliases = {
+    "吉田": "吉田",  # 長野にもある
+    "甲府穴切": "甲府穴切",  # not found
+    "移動局_身延": "移動局_身延",  # not found
+}
 
 # apparent nameと内部標準名(そらまめ名)の変換
 converters = {
@@ -78,6 +82,7 @@ converters = {
 
 
 def stations():
+    """独自の測定局コードと測定局名の関係を定義するファイルを入手する。"""
     # dfs = pd.DataFrame.from_dict(STATIONS, orient="index")  # .transpose()
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -88,6 +93,7 @@ def stations():
 
 
 def items():
+    """独自の測定量コードと測定量名の関係を定義するファイルを入手する。"""
     # dfs = pd.DataFrame.from_dict(ITEMS, orient="index")  # .transpose()
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -98,6 +104,7 @@ def items():
 
 
 def retrieve_raw(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名は生のまま。"""
     dt = datetime.datetime.fromisoformat(isotime)
     date_time = dt.strftime("%Y%m%d%H")
 
@@ -117,6 +124,7 @@ def retrieve_raw(isotime):
 
 
 def retrieve(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。"""
     df = retrieve_raw(isotime)
     item_map = items()["simpleName"].to_dict()
     # データをpyから読む場合は、codeが整数化されてしまう。

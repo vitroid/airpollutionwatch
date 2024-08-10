@@ -53,13 +53,13 @@ except:
 aliases = {
     "国設東京新宿": "国設東京（新宿）",
     "小金井市東町": "小金井市東町",
-    "町田市能ｹ谷": "町田市能ｹ谷",
-    "八王子市片倉町": "八王子市片倉町",
-    "八王子市館町": "八王子市館町",
-    "八王子市大楽寺町": "八王子市大楽寺町",
+    "町田市能ｹ谷": "町田市能ケ谷",
+    "八王子市片倉町": "片倉町",
+    "八王子市館町": "館町",
+    "八王子市大楽寺町": "大楽寺町",
     "玉川通り上馬": "玉川通り上馬",
     "第一京浜高輪": "第一京浜高輪",
-    "甲州街道八木町": "甲州街道八木町",
+    "甲州街道八木町": "八木町",
 }
 
 # apparent nameと内部標準名(そらまめ名)の変換
@@ -87,6 +87,7 @@ converters = {
 
 
 def stations():
+    """独自の測定局コードと測定局名の関係を定義するファイルを入手する。"""
     # dfs = pd.DataFrame.from_dict(STATIONS, orient="index")  # .transpose()
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -97,6 +98,7 @@ def stations():
 
 
 def items():
+    """独自の測定量コードと測定量名の関係を定義するファイルを入手する。"""
     # dfs = pd.DataFrame.from_dict(ITEMS, orient="index")  # .transpose()
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -126,6 +128,7 @@ def retrieve_raw(isotime):
 
 
 def retrieve(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。"""
     df = retrieve_raw(isotime)
     item_map = items()["simpleName"].to_dict()
     # データをpyから読む場合は、codeが整数化されてしまう。

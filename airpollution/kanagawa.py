@@ -9,9 +9,6 @@ import datetime
 import requests_cache
 import pandas as pd
 
-# from airpollution.kanagawa_aux.V501Station import STATIONS
-# from airpollution.kanagawa_aux.V502Item import ITEMS
-
 try:
     from convert import (
         SO2,
@@ -53,7 +50,43 @@ except:
 
 
 # ウェブ上の表記と、国環研の表記との対応
-aliases = {}
+aliases = {
+    "逗子市逗子": "逗子市逗子",  # not found
+    "西丹沢犬越路": "西丹沢犬越路",  # not found
+    "移動局山北町": "移動局山北町",  # not found
+    "国設川崎（田島）": "国設川崎",
+    "中原区地域みまもり支援センター": "中原みまもりＣ",
+    "高津区生活文化会館": "生活文化会館",
+    "多摩区登戸小学校": "登戸小学校",
+    "麻生区弘法松公園": "弘法松公園",
+    "川崎区池上新田公園前": "池上新田公園前",
+    "川崎区日進町": "日進町",
+    "幸区遠藤町交差点": "遠藤町交差点",
+    "高津区二子": "二子",
+    "多摩区本村橋": "本村橋",
+    "麻生区柿生": "柿生",
+    "川崎区富士見公園": "富士見公園",
+    "川崎市役所第３庁舎": "川崎市役所第３庁舎",  # not found
+    "横須賀市追浜行政センター": "追浜行政Ｃ",
+    "横須賀市久里浜行政センター": "久里浜行政Ｃ",
+    "横須賀市西行政センター": "西行政Ｃ",
+    "横須賀市小川町交差点": "小川町交差点",
+    "横須賀市池上ｺﾐｭﾆﾃｨｾﾝﾀｰ": "池上コミＣ",
+    "相模原市相模台": "相模台",
+    "相模原市橋本": "橋本",
+    "相模原市田名": "田名",
+    "相模原市津久井": "津久井",
+    "相模原市上溝": "上溝",
+    "相模原市古淵": "古淵",
+    "藤沢市湘南台小学校": "湘南台小学校",
+    "藤沢市御所見小学校": "御所見小学校",
+    "藤沢市明治市民センター": "明治市民センター",
+    "平塚市大野公民館": "大野公民館",
+    "平塚市神田小学校": "神田小学校",
+    "平塚市旭小学校": "旭小学校",
+    "平塚市花水小学校": "花水小学校",
+    "平塚市松原歩道橋": "松原歩道橋",
+}
 
 # apparent nameと内部標準名(そらまめ名)の変換
 converters = {
@@ -80,6 +113,7 @@ converters = {
 
 
 def stations():
+    """独自の測定局コードと測定局名の関係を定義するファイルを入手する。"""
     # dfs = pd.DataFrame.from_dict(STATIONS, orient="index")  # .transpose()
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -90,6 +124,7 @@ def stations():
 
 
 def items():
+    """独自の測定量コードと測定量名の関係を定義するファイルを入手する。"""
     # dfs = pd.DataFrame.from_dict(ITEMS, orient="index")  # .transpose()
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -100,6 +135,7 @@ def items():
 
 
 def retrieve_raw(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名は生のまま。"""
     dt = datetime.datetime.fromisoformat(isotime)
     date_time = dt.strftime("%Y%m%d%H")
 
@@ -119,6 +155,7 @@ def retrieve_raw(isotime):
 
 
 def retrieve(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。"""
     df = retrieve_raw(isotime)
     item_map = items()["simpleName"].to_dict()
     # データをpyから読む場合は、codeが整数化されてしまう。

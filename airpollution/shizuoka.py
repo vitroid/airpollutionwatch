@@ -50,7 +50,24 @@ except:
 
 
 # ウェブ上の表記と、国環研の表記との対応
-aliases = {}
+aliases = {
+    "下田総合庁舎": "下田総合庁舎",  # not found
+    "蒲原測定局": "蒲原",
+    "三保第一小学校": "清水三保第一小",
+    "庵原中学校": "清水庵原中学校",
+    "興津北公園": "清水興津北公園",
+    "中央": "浜松中央測定局",
+    "東南部": "東南部測定局",
+    "西部": "西部測定局",
+    "東北部": "東北部測定局",
+    "三ヶ日": "三ヶ日測定局",
+    "天竜": "天竜測定局",
+    "Ｒ２５７": "Ｒ－２５７",
+    "Ｒ１５０": "Ｒ－１５０",
+    "浜松環状線測定局": "浜松環状線",
+    "浜北": "浜北測定局",
+    "引佐": "引佐測定局",
+}
 
 # apparent nameと内部標準名(そらまめ名)の変換
 converters = {
@@ -77,6 +94,7 @@ converters = {
 
 
 def retrieve_raw(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名は生のまま。"""
     dt = datetime.datetime.fromisoformat(isotime)
     date = dt.strftime("%Y%m%d")
     time = dt.strftime("%H")
@@ -97,6 +115,7 @@ def retrieve_raw(isotime):
 
 
 def retrieve(isotime):
+    """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。"""
     df = retrieve_raw(isotime)
     # with open("tmp.pickle", "wb") as f:
     #     pickle.dump(df, f)
