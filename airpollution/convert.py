@@ -1,10 +1,10 @@
 import pandas as pd
-from airpollution.TM20210000 import stations
+from airpollution.TM20210000 import STATIONS
 import io
 
 # with open("TM20210000.txt") as f:
 #     stations = pd.read_csv(f)
-stations = pd.read_csv(io.StringIO(stations))
+stations = pd.read_csv(io.StringIO(STATIONS))
 stations = stations[
     [
         "測定局名",
@@ -35,6 +35,7 @@ stations = stations[
         "標高(m)",
     ]
 ]
+stations = stations.set_index("国環研局番")
 # print(stations.loc["野田桐ケ作"])
 
 
@@ -45,7 +46,7 @@ def station_to_id(station, aliases=None):
     match2 = stations["８文字名"] == station
     rows = stations[match1 | match2]
     if len(rows) == 1:
-        return rows["国環研局番"].iloc[0]
+        return rows.index[0]
     print(station)
     return station
 
