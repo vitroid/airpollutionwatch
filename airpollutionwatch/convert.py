@@ -1,5 +1,5 @@
 import pandas as pd
-from airpollution.TM20210000 import STATIONS
+from airpollutionwatch.TM20210000 import STATIONS
 import io
 
 # with open("TM20210000.txt") as f:
