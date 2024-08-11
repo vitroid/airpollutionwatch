@@ -10,7 +10,7 @@ import requests_cache
 import pandas as pd
 
 try:
-    from airpollution.convert import (
+    from airpollutionwatch.convert import (
         SO2,
         NO,
         NO2,

@@ -30,7 +30,7 @@ try:
         STATION,
     )
 except:
-    from airpollution.convert import (
+    from airpollutionwatch.convert import (
         SO2,
         NO,
         NO2,
