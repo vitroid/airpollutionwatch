@@ -146,9 +146,9 @@ wd_codes_EN = {
 def DIRC16(series: pd.Series, unit: str = "16dirc"):
     if unit == "EN":
         # 英文字表示を気象庁の16方位数に換算する。
-        return series.apply(lambda x: wd_codes_EN.get(x, ""))
+        return series.apply(lambda x: wd_codes_EN.get(x, 0)).astype("Int64")
     assert unit == "16dirc", f"unknown unit {unit}"
-    return series
+    return series.apply(lambda x: pd.to_numeric(x, errors="coerce")).astype("Int64")
 
 
 def SO2(series: pd.Series, unit: str = "ppb"):
