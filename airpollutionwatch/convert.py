@@ -104,6 +104,17 @@ def CELSIUS(series: pd.Series, unit: str = "0.1celsius"):
     return series
 
 
+def DEGREE(series: pd.Series, unit: str = "degree"):
+    series = pd.to_numeric(series, errors="coerce")
+    assert unit == "degree", f"unknown unit {unit}"
+    return series
+
+
+def NOP(series: pd.Series):
+    series = pd.to_numeric(series, errors="coerce")
+    return series
+
+
 def PERCENT(series: pd.Series, unit: str = "%"):
     series = pd.to_numeric(series, errors="coerce")
     if unit == "0.1%":
@@ -209,6 +220,18 @@ def SPM(series: pd.Series, unit: str = "ug/m3"):
 
 def PM25(series: pd.Series, unit: str = "ug/m3"):
     return UG_M3(series, unit).rename("PM25")
+
+
+def LON(series: pd.Series, unit: str = "degree"):
+    return DEGREE(series, unit).rename("lon")
+
+
+def LAT(series: pd.Series, unit: str = "degree"):
+    return DEGREE(series, unit).rename("lat")
+
+
+def CODE(series: pd.Series):
+    return NOP(series).rename("code")
 
 
 def test():
