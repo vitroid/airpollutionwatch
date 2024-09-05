@@ -1,12 +1,9 @@
-import sys
-
-sys.path.insert(0, "..")  # for debug
-
 import io
 import datetime
 from logging import getLogger, basicConfig, INFO, DEBUG
 import requests_cache
 import pandas as pd
+import numpy as np
 
 try:
     from convert import (
@@ -162,11 +159,13 @@ def retrieve_raw(isotime):
 
 def retrieve(isotime, station_set="full"):
     """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。
-    
+
     station_setが"air"の場合は、大気測定局(8桁の局番があるもの)だけをリストする。
     """
+    logger = getLogger()
+
     assert station_set in ("full", "air")
-    
+
     df = retrieve_raw(isotime)
     item_map = items()["simpleName"].to_dict()
     # データをpyから読む場合は、codeが整数化されてしまう。
@@ -179,15 +178,20 @@ def retrieve(isotime, station_set="full"):
     df = df.rename(index=station_map, columns=item_map)
     df["name"] = df.index
 
-    if station_set == "air":
-        # station_mapに含まれる測定局のみに絞る
-        df = df.iloc[list(station_map).values()]
-
     cols = []
     for col in df.columns:
         if col in converters:
             cols.append(converters[col](df[col]))
-    return pd.concat(cols, axis=1).set_index("station")
+
+    df = pd.concat(cols, axis=1).set_index("station")
+
+    if station_set == "air":
+        # station_mapに含まれる測定局のみに絞る
+        # selection = [isinstance(i, np.int64) for i in df.index]
+        selection = [type(i) != str and (10000000 <= i <= 99999999) for i in df.index]
+        df = df.iloc[selection]
+
+    return df
 
 
 def test():

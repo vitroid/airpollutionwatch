@@ -8,6 +8,7 @@ import datetime
 # import requests
 import requests_cache
 import pandas as pd
+import numpy as np
 
 try:
     from airpollutionwatch.convert import (
@@ -114,7 +115,7 @@ def retrieve_raw(isotime):
     return dfs[0]
 
 
-def retrieve(isotime):
+def retrieve(isotime, station_set="full"):
     """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。"""
     df = retrieve_raw(isotime)
     # with open("tmp.pickle", "wb") as f:
@@ -126,7 +127,15 @@ def retrieve(isotime):
     for col in df.columns:
         if col in converters:
             cols.append(converters[col](df[col]))
-    return pd.concat(cols, axis=1).set_index("station")
+    df = pd.concat(cols, axis=1).set_index("station")
+
+    if station_set == "air":
+        # station_mapに含まれる測定局のみに絞る
+        # selection = [isinstance(i, np.int64) for i in df.index]
+        selection = [type(i) != str and (10000000 <= i <= 99999999) for i in df.index]
+        df = df.iloc[selection]
+
+    return df
 
 
 def test():
