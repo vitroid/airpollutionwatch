@@ -4,8 +4,7 @@ sys.path.insert(0, "..")  # for debug
 
 import io
 import datetime
-
-# import requests
+from logging import getLogger, basicConfig, INFO, DEBUG
 import requests_cache
 import pandas as pd
 
@@ -117,8 +116,16 @@ converters = {
 
 def retrieve_raw(isotime):
     """指定された日時のデータを入手する。index名とcolumn名は生のまま。"""
+    logger = getLogger()
     dt = datetime.datetime.fromisoformat(isotime)
     date_time = dt.strftime("day=%Y年%m月%d日&hour=%H")
+    if date_time[-2:] == "00":
+        logger.debug(f"Date spec {date_time} is invalid.")
+        # 00時は存在しないので、前日の24時に書きかえる。
+        date_time = (dt - datetime.timedelta(hours=1)).strftime(
+            "day=%Y年%m月%d日&hour="
+        ) + "24"
+        logger.debug(f"Modified to {date_time}.")
 
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -127,6 +134,7 @@ def retrieve_raw(isotime):
     # これがないと文字化けする
     response.encoding = response.apparent_encoding
 
+    logger.debug(response.text)
     dfs = pd.read_html(io.StringIO(response.text))
     return dfs[0]
 
@@ -147,8 +155,23 @@ def retrieve(isotime):
 
 
 def test():
-    print(retrieve("2024-08-08T23:00+09:00"))
+    print(retrieve("2024-09-01T00:00+09:00"))
 
 
 if __name__ == "__main__":
+    basicConfig(level=DEBUG)
     test()
+
+
+# 千葉のシステムは、間違った日付文字列を与えると(あるいは、それ以外のエラーでも)今日の最新データをしれっと表示するのでとても怖い。
+# 以下の部分をBeautifulSoupあたりでチェックし、日付と時刻がちゃんと選択されていることを確認したほうが良い。
+"""
+<main>
+    <div id="contents">
+        <h1>リアルタイム時報<span>県内の全測定局の全測定物質の1時間値を一覧表で見ることができます。</span></h1>
+        <div id="search">
+            <form method="get" action="./">
+                <input type="text" value="2024年08月31日" name="day" id="day" readonly="readonly">
+                <select name="hour" id="hour">
+                    <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24" selected="selected">24</option>                              </select>
+"""

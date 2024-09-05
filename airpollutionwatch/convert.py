@@ -47,7 +47,7 @@ def station_to_id(station, aliases=None):
     rows = stations[match1 | match2]
     if len(rows) == 1:
         return rows.index[0]
-    print(station)
+    # print(station)
     return station
 
 

@@ -9,13 +9,7 @@ import datetime
 import requests_cache
 import pandas as pd
 import numpy as np
-from airpollutionwatch.convert import (
-    TEMP,
-    HUM,
-    CODE,
-    LON,
-    LAT,
-)
+from airpollutionwatch.convert import TEMP, HUM, CODE, LON, LAT, WD, WS
 
 # apparent nameと内部標準名(そらまめ名)の変換
 converters = {
@@ -34,8 +28,8 @@ converters = {
     # "CH4 ppmC": lambda x: CH4(x, unit="ppmC"),
     # "THC ppmC": lambda x: THC(x, unit="ppmC"),
     # "CO ppm": lambda x: CO(x, unit="ppm"),
-    # "WD 方位": lambda x: WD(x, unit="EN"),
-    # "WV m/s": lambda x: WS(x, unit="m/s"),
+    "windDirection": lambda x: WD(x, unit="16dirc"),
+    "wind": lambda x: WS(x, unit="m/s"),
     "temp": lambda x: TEMP(x, unit="celsius"),
     "humidity": lambda x: HUM(x, unit="%"),
     "lon": lambda x: LON(x, unit="degree"),
@@ -63,7 +57,7 @@ def retrieve_raw(isotime):
 def retrieve(isotime):
     """指定された日時のデータを入手する。index名とcolumn名をつけなおし、単位をそらまめにあわせる。"""
     df = retrieve_raw(isotime)
-
+    # print(df.iloc[0])
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
         f"https://www.jma.go.jp/bosai/amedas/const/amedastable.json",
@@ -76,7 +70,7 @@ def retrieve(isotime):
     df["lat"] = [x[0] + x[1] / 60 for x in df["lat"]]
     # 第2項目の意味がわからない。
     # print(df.iloc[0]["temp"][0])
-    for item in ("temp", "humidity"):
+    for item in ("temp", "humidity", "wind", "windDirection"):
         temp = []
         for t in df[item]:
             if type(t) is list:
@@ -87,7 +81,8 @@ def retrieve(isotime):
         df[item] = temp
     df["code"] = df.index
 
-    print(df.columns)
+    # print(df.columns)
+    # print(df["windDirection"])
     cols = []
     for col in df.columns:
         if col in converters:

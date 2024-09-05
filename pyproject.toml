@@ -3,8 +3,8 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [project]
-name = "airpollutionwatch"
-version = "0.1.0" # major.minor.fix
+# name = "airpollutionwatch"
+dynamic = ["version"]
 
 [project.urls]
 "Homepage" = "https://github.com/vitroid/airpollutionwatch"
@@ -12,7 +12,7 @@ version = "0.1.0" # major.minor.fix
 
 [tool.poetry]
 name = "airpollutionwatch"
-version = "0.1.0"
+version = "0.1.5" # major.minor.fix
 description = ""
 authors = ["vitroid <vitroid@gmail.com>"]
 readme = "README.md"

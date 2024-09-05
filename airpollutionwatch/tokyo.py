@@ -4,8 +4,7 @@ sys.path.insert(0, "..")  # for debug
 
 import io
 import datetime
-
-# import requests
+from logging import getLogger, basicConfig, INFO, DEBUG
 import requests_cache
 import pandas as pd
 
@@ -109,8 +108,16 @@ def items():
 
 
 def retrieve_raw(isotime):
+    # dt = datetime.datetime.fromisoformat(isotime)
+    # date_time = dt.strftime("%Y%m%d%H")
+    logger = getLogger()
     dt = datetime.datetime.fromisoformat(isotime)
     date_time = dt.strftime("%Y%m%d%H")
+    if date_time[-2:] == "00":
+        logger.debug(f"Date spec {date_time} is invalid.")
+        # 00時は存在しないので、前日の24時に書きかえる。
+        date_time = (dt - datetime.timedelta(hours=1)).strftime("%Y%m%d") + "24"
+        logger.debug(f"Modified to {date_time}.")
 
     session = requests_cache.CachedSession("airpollution")
     response = session.get(
@@ -149,8 +156,9 @@ def retrieve(isotime):
 
 
 def test():
-    print(retrieve("2024-08-08T23:00+09:00"))
+    print(retrieve("2024-09-01T00:00+09:00"))
 
 
 if __name__ == "__main__":
+    basicConfig(level=DEBUG)
     test()
